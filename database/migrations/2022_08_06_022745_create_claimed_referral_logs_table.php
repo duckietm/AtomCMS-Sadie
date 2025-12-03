@@ -15,11 +15,11 @@ return new class extends Migration
 
         Schema::create('claimed_referral_logs', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->index();
+            $table->bigInteger('user_id')->index();
             $table->string('ip_address');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('players');
         });
     }
 

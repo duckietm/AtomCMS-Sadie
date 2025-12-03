@@ -8,9 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('permissions', function (Blueprint $table) {
-            if (columnExists('permissions', 'staff_background')) {
-                Schema::dropColumns('permissions', 'staff_background');
+        Schema::table('roles', function (Blueprint $table) {
+            if (columnExists('roles', 'staff_background')) {
+                Schema::dropColumns('roles', 'staff_background');
             }
 
             $table->string('staff_background')->default('staff-bg.png')->after('staff_color');
@@ -19,6 +19,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('permissions', function (Blueprint $table) {});
+        Schema::table('roles', function (Blueprint $table) {
+        });
     }
 };
