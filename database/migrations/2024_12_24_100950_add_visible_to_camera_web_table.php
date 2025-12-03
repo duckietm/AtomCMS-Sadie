@@ -3,13 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up()
     {
-        if (!Schema::hasTable('camera_web')) {
+        if (! Schema::hasTable('camera_web')) {
             Schema::create('camera_web', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedInteger('user_id');
@@ -26,7 +25,7 @@ return new class extends Migration
             });
         } else {
             Schema::table('camera_web', function (Blueprint $table) {
-                if (!Schema::hasColumn('camera_web', 'visible')) {
+                if (! Schema::hasColumn('camera_web', 'visible')) {
                     $table->boolean('visible')->default(true)->after('url');
                 }
             });
