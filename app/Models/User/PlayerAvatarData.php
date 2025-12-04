@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class PlayerAvatarData extends Model
 {
     protected $table = 'player_avatar_data';
+
     public $timestamps = false;
 
     protected $fillable = [
