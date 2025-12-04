@@ -48,8 +48,10 @@ class User extends Authenticatable implements FilamentUser, HasName
     public $timestamps = false;
 
     protected $guarded = ['id'];
+
     protected $hidden = ['id', 'password', 'remember_token'];
-	protected $table = 'players';
+
+    protected $table = 'players';
 
     protected function casts(): array
     {
