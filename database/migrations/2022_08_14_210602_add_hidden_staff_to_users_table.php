@@ -8,12 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            if (columnExists('users', 'hidden_staff')) {
-                Schema::dropColumns('users', 'hidden_staff');
+        Schema::table('roles', function (Blueprint $table) {
+            if (columnExists('roles', 'hidden_staff')) {
+                Schema::dropColumns('roles', 'hidden_staff');
             }
 
-            $table->boolean('hidden_staff')->after('rank')->default(false);
+            $table->boolean('hidden_staff')->after('name')->default(false);
         });
     }
 };

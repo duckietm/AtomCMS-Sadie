@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserSetting extends Model
 {
-    protected $table = 'users_settings';
+    protected $table = 'player_data';
 
     protected $guarded = ['id'];
 

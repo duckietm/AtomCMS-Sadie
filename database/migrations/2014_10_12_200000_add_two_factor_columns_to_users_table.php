@@ -12,13 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            if (columnExists('users', 'two_factor_secret')) {
-                Schema::dropColumns('users', 'two_factor_secret');
+        Schema::table('players', function (Blueprint $table) {
+            if (columnExists('players', 'two_factor_secret')) {
+                Schema::dropColumns('players', 'two_factor_secret');
             }
 
-            if (columnExists('users', 'two_factor_recovery_codes')) {
-                Schema::dropColumns('users', 'two_factor_recovery_codes');
+            if (columnExists('players', 'two_factor_recovery_codes')) {
+                Schema::dropColumns('players', 'two_factor_recovery_codes');
             }
 
             $table->text('two_factor_secret')
@@ -30,8 +30,8 @@ return new class extends Migration
                 ->nullable();
 
             if (Fortify::confirmsTwoFactorAuthentication()) {
-                if (columnExists('users', 'two_factor_confirmed_at')) {
-                    Schema::dropColumns('users', 'two_factor_confirmed_at');
+                if (columnExists('players', 'two_factor_confirmed_at')) {
+                    Schema::dropColumns('players', 'two_factor_confirmed_at');
                 }
 
                 $table->timestamp('two_factor_confirmed_at')
@@ -46,7 +46,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('players', function (Blueprint $table) {
             $table->dropColumn(array_merge([
                 'two_factor_secret',
                 'two_factor_recovery_codes',
