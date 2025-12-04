@@ -15,12 +15,18 @@ class HomeController extends Controller
             'articles' => WebsiteArticle::latest('id')
                 ->take(4)
                 ->has('user')
-                ->with('user:id,username,look')
+                ->with([
+                    'user:id,username',
+                    'user.avatar:player_id,figure_code',
+                ])
                 ->get(),
             'photos' => CameraWeb::latest('id')
                 ->take(4)
                 ->where('visible', true)
-                ->with('user:id,username,look')
+                ->with([
+                    'user:id,username',
+                    'user.avatar:player_id,figure_code',
+                ])
                 ->get(),
         ]);
     }
