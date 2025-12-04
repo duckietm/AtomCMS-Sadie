@@ -11,13 +11,13 @@ return new class extends Migration
         Schema::create('website_maintenance_tasks', function (Blueprint $table) {
             $table->id();
 
-            $table->bigInteger('user_id')->nullable();
+            $table->integer('user_id')->nullable();
             $table->string('task');
             $table->boolean('completed')->default(false);
 
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('players')->nullOnDelete();
+            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
         });
     }
 

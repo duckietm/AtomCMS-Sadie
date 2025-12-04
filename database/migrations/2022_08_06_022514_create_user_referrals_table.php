@@ -9,25 +9,17 @@ return new class extends Migration
     public function up(): void
     {
         if (config('habbo.migrations.rename_tables') && Schema::hasTable('user_referrals')) {
-            try {
-                Schema::table('user_referrals', function (Blueprint $table) {
-                    $table->dropForeign(['user_id']);
-                });
-            } catch (\Exception $e) {
-            }
-            Schema::rename('user_referrals', 'user_referrals_' . time());
+            dropForeignKeyIfExists('user_referrals', 'user_id');
+            Schema::rename('user_referrals', sprintf('user_referrals_%s', time()));
         }
 
         Schema::create('user_referrals', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id');
-            $table->unsignedBigInteger('referrals_total')->default(0);
+            $table->integer('user_id');
+            $table->unsignedBigInteger('referrals_total');
             $table->timestamps();
 
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('players')
-                ->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
         });
     }
 

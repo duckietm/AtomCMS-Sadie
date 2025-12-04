@@ -8,9 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('players', function (Blueprint $table) {
-            if (columnExists('players', 'two_factor_confirmed')) {
-                Schema::dropColumns('players', 'two_factor_confirmed');
+        Schema::table('users', function (Blueprint $table) {
+            if (columnExists('users', 'two_factor_confirmed')) {
+                Schema::dropColumns('users', 'two_factor_confirmed');
             }
 
             $table->boolean('two_factor_confirmed')

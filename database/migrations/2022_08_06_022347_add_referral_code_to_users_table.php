@@ -10,12 +10,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('players', function (Blueprint $table) {
-            if (columnExists('players', 'referral_code')) {
-                Schema::dropColumns('players', 'referral_code');
+        Schema::table('users', function (Blueprint $table) {
+            if (columnExists('users', 'referral_code')) {
+                Schema::dropColumns('users', 'referral_code');
             }
 
-            $table->string('referral_code')->nullable()->unique()->after('created_at');
+            $table->string('referral_code')->nullable()->unique()->after('home_room');
         });
 
         foreach (User::whereNull('referral_code')->get() as $user) {
@@ -25,8 +25,8 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('players', function (Blueprint $table) {
-            Schema::table('players', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
+            Schema::table('users', function (Blueprint $table) {
                 $table->dropColumn('referral_code');
             });
         });

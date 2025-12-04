@@ -7,11 +7,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('website_drawbadges', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id');
+            $table->integer('user_id');
             $table->string('badge_path');
             $table->string('badge_url');
             $table->string('badge_name');
@@ -19,7 +22,7 @@ return new class extends Migration
             $table->boolean('published')->default(false);
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('players')->cascadeOnDelete();
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
         });
 
         DB::table('website_settings')->insert([
@@ -36,6 +39,9 @@ return new class extends Migration
         ]);
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('website_drawbadges');

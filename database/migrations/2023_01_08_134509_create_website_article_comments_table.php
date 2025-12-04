@@ -17,12 +17,12 @@ return new class extends Migration
         Schema::create('website_article_comments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('article_id');
-            $table->bigInteger('user_id');
+            $table->integer('user_id');
             $table->string('comment');
             $table->timestamps();
 
             $table->foreign('article_id')->references('id')->on('website_articles')->cascadeOnDelete();
-            $table->foreign('user_id')->references('id')->on('players')->cascadeOnDelete();
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
         });
     }
 
