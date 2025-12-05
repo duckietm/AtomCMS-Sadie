@@ -143,10 +143,14 @@ class User extends Authenticatable implements FilamentUser, HasName
         return setting('referrals_needed') - $referrals;
     }
 
-    public function ban(): HasOne
-    {
-        return $this->hasOne(Ban::class, 'user_id')->where('ban_expire', '>', time())->whereIn('type', ['account', 'super']);
-    }
+    public function ban()
+	{
+    return $this->hasOne(\App\Models\User\Ban::class, 'player_id')
+        ->where(function ($q) {
+            $q->whereNull('expires_at')
+              ->orWhere('expires_at', '>', now());
+        });
+	}
 
     public function settings(): HasOne
     {

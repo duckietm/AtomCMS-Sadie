@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User\Ban;
+use App\Models\User\BannedIpAddress;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,21 +19,30 @@ class BannedMiddleware
             return $next($request);
         }
 
+        $ipBan = BannedIpAddress::active()
+            ->where('ip_address', $request->ip())
+            ->exists();
+
         if (! $authenticated) {
-            if ($request->is('banned')) {
+            if ($ipBan && ! $request->is('banned')) {
+                return to_route('banned.show');
+            }
+
+            if (! $ipBan && $request->is('banned')) {
                 return to_route('login');
             }
 
             return $next($request);
         }
 
-        $accountBan = $request->user()?->ban;
+        $user       = $request->user();
+        $accountBan = $user?->ban;
 
-        if ($accountBan && ! $request->is('banned')) {
+        if (($ipBan || $accountBan) && ! $request->is('banned')) {
             return to_route('banned.show');
         }
 
-        if (! $accountBan && $request->is('banned')) {
+        if (! $ipBan && ! $accountBan && $request->is('banned')) {
             return to_route('me.show');
         }
 
