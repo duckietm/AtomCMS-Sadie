@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PlayerRelationship extends Model
 {
     protected $table = 'player_relationships';
+
     public $timestamps = false;
 
     protected $guarded = ['id'];

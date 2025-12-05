@@ -23,8 +23,8 @@ class MeController extends Controller
 
         return view('user.me', [
             'onlineFriends' => $user?->getOnlineFriends(),
-            'user'          => $user,
-            'articles'      => WebsiteArticle::whereHas('user')
+            'user' => $user,
+            'articles' => WebsiteArticle::whereHas('user')
                 ->with([
                     'user:id,username',
                     'user.avatar:player_id,figure_code',

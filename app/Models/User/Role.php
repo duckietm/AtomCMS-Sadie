@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Role extends Model
 {
     protected $table = 'roles';
+
     public $timestamps = false;
 
     protected $guarded = ['id'];
 
     protected $casts = [
         'hidden_staff' => 'boolean',
-        'hidden_rank'  => 'boolean',
+        'hidden_rank' => 'boolean',
     ];
 
     public function playerRoles(): HasMany

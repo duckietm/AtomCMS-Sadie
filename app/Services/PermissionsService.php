@@ -11,11 +11,11 @@ class PermissionsService
     public ?Collection $permissions;
 
     public function __construct()
-	{
-		$this->permissions = Cache::remember('website_permissions', now()->addMinutes(30), function () {
-			return WebsitePermission::all()->pluck('min_rank', 'permission');
-		});
-	}
+    {
+        $this->permissions = Cache::remember('website_permissions', now()->addMinutes(30), function () {
+            return WebsitePermission::all()->pluck('min_rank', 'permission');
+        });
+    }
 
     public function getOrDefault(string $permissionName, bool $default = false): bool
     {

@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User\Ban;
 use App\Models\User\BannedIpAddress;
 use Closure;
 use Illuminate\Http\Request;
@@ -35,7 +34,7 @@ class BannedMiddleware
             return $next($request);
         }
 
-        $user       = $request->user();
+        $user = $request->user();
         $accountBan = $user?->ban;
 
         if (($ipBan || $accountBan) && ! $request->is('banned')) {

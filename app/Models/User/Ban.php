@@ -13,7 +13,9 @@ class Ban extends Model
     use LogsActivity;
 
     protected $table = 'player_bans';
+
     protected $guarded = ['id'];
+
     public $timestamps = false;
 
     protected $casts = [
@@ -35,7 +37,7 @@ class Ban extends Model
     {
         return $query->where(function ($q) {
             $q->whereNull('expires_at')
-              ->orWhere('expires_at', '>', now());
+                ->orWhere('expires_at', '>', now());
         });
     }
 

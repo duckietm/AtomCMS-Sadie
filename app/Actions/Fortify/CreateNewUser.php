@@ -58,9 +58,9 @@ class CreateNewUser implements CreatesNewUsers
         $now = now();
 
         $user = User::create([
-            'username'   => $input['username'],
-            'email'      => $input['mail'],
-            'password'   => Hash::make($input['password']),
+            'username' => $input['username'],
+            'email' => $input['mail'],
+            'password' => Hash::make($input['password']),
             'created_at' => $now,
         ]);
 
@@ -69,38 +69,38 @@ class CreateNewUser implements CreatesNewUsers
         ]);
 
         PlayerAvatarData::create([
-            'player_id'      => $user->id,
-            'motto'          => setting('start_motto') ?: 'Welcome to the hotel!',
-            'gender'         => 'M',
-            'figure_code'    => setting('start_look')
+            'player_id' => $user->id,
+            'motto' => setting('start_motto') ?: 'Welcome to the hotel!',
+            'gender' => 'M',
+            'figure_code' => setting('start_look')
                 ?: 'hr-100-61.hd-180-1.ch-210-66.lg-270-110.sh-305-62',
             'chat_bubble_id' => 0,
         ]);
 
         PlayerData::create([
-            'player_id'             => $user->id,
-            'home_room_id'          => (int) (setting('hotel_home_room') ?: 0),
-            'credit_balance'        => (int) (setting('start_credits') ?: 0),
-            'pixel_balance'         => 0,
-            'seasonal_balance'      => 0,
-            'gotw_points'           => 0,
-            'respect_points'        => 0,
-            'respect_points_pet'    => 0,
-            'achievement_score'     => 0,
+            'player_id' => $user->id,
+            'home_room_id' => (int) (setting('hotel_home_room') ?: 0),
+            'credit_balance' => (int) (setting('start_credits') ?: 0),
+            'pixel_balance' => 0,
+            'seasonal_balance' => 0,
+            'gotw_points' => 0,
+            'respect_points' => 0,
+            'respect_points_pet' => 0,
+            'achievement_score' => 0,
             'allow_friend_requests' => 1,
-            'is_online'             => 0,
-            'last_online'           => null,
+            'is_online' => 0,
+            'last_online' => null,
         ]);
 
         PlayerRole::create([
             'player_id' => $user->id,
-            'role_id'   => 1,
+            'role_id' => 1,
         ]);
 
         PlayerWebsiteData::create([
-            'player_id'  => $user->id,
+            'player_id' => $user->id,
             'initial_ip' => $ip,
-            'last_ip'    => $ip,
+            'last_ip' => $ip,
             'last_login' => $now,
         ]);
 
@@ -135,7 +135,7 @@ class CreateNewUser implements CreatesNewUsers
                     'referrals_total' => $referralUser->referrals != null
                         ? $referralUser->referrals->referrals_total + 1
                         : 1,
-                ]
+                ],
             );
 
             $referralUser->userReferrals()->create([

@@ -17,7 +17,6 @@ use App\Models\Miscellaneous\CameraWeb;
 use App\Models\Miscellaneous\WebsiteBetaCode;
 use App\Models\Shop\WebsitePaypalTransaction;
 use App\Models\Shop\WebsiteUsedShopVoucher;
-use App\Models\User\Ban;
 use App\Models\User\ClaimedReferralLog;
 use App\Models\User\PlayerAvatarData;
 use App\Models\User\PlayerData;
@@ -25,6 +24,7 @@ use App\Models\User\PlayerRelationship;
 use App\Models\User\PlayerRole;
 use App\Models\User\PlayerWebsiteData;
 use App\Models\User\Referral;
+use App\Models\User\Role as UserRole;
 use App\Models\User\UserReferral;
 use App\Models\User\WebsiteUserGuestbook;
 use Filament\Models\Contracts\FilamentUser;
@@ -43,8 +43,6 @@ use Laravel\Fortify\TwoFactorAuthenticationProvider;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-
-use App\Models\User\Role as UserRole;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -74,22 +72,22 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     public function currency(string $currency)
-	{
-    $data = $this->relationLoaded('data') ? $this->data : $this->data()->first();
+    {
+        $data = $this->relationLoaded('data') ? $this->data : $this->data()->first();
 
-    if (! $data) {
-        return 0;
+        if (! $data) {
+            return 0;
+        }
+
+        return match ($currency) {
+            // map your CMS strings to player_data columns
+            'credits' => $data->credit_balance,
+            'duckets' => $data->pixel_balance,
+            'diamonds' => $data->seasonal_balance,
+            'points' => $data->gotw_points,
+            default => 0,
+        };
     }
-
-    return match ($currency) {
-        // map your CMS strings to player_data columns
-        'credits'  => $data->credit_balance,
-        'duckets'  => $data->pixel_balance,
-        'diamonds' => $data->seasonal_balance,
-        'points'   => $data->gotw_points,
-        default    => 0,
-    };
-	}
 
     public function permission(): HasOne
     {
@@ -127,9 +125,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     public function friends(): HasMany
-	{
-		return $this->hasMany(PlayerRelationship::class, 'origin_player_id');
-	}
+    {
+        return $this->hasMany(PlayerRelationship::class, 'origin_player_id');
+    }
 
     public function referralsNeeded()
     {
@@ -143,13 +141,13 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     public function ban()
-	{
-    return $this->hasOne(\App\Models\User\Ban::class, 'player_id')
-        ->where(function ($q) {
-            $q->whereNull('expires_at')
-              ->orWhere('expires_at', '>', now());
-        });
-	}
+    {
+        return $this->hasOne(\App\Models\User\Ban::class, 'player_id')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            });
+    }
 
     public function settings(): HasOne
     {
@@ -242,25 +240,24 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     public function getOnlineFriends(int $total = 10)
-	{
-    return $this->friends()
-        ->select([
-            'player_relationships.target_player_id as friend_id',
-            'players.id',
-            'players.username',
-            'player_avatar_data.figure_code as look',
-            'player_avatar_data.motto',
-            'player_data.last_online',
-        ])
-        ->join('players', 'players.id', '=', 'player_relationships.target_player_id')
-        ->join('player_avatar_data', 'player_avatar_data.player_id', '=', 'players.id')
-        ->join('player_data', 'player_data.player_id', '=', 'players.id')
-        ->where('player_data.is_online', 1)
-        ->inRandomOrder()
-        ->limit($total)
-        ->get();
-		}
-
+    {
+        return $this->friends()
+            ->select([
+                'player_relationships.target_player_id as friend_id',
+                'players.id',
+                'players.username',
+                'player_avatar_data.figure_code as look',
+                'player_avatar_data.motto',
+                'player_data.last_online',
+            ])
+            ->join('players', 'players.id', '=', 'player_relationships.target_player_id')
+            ->join('player_avatar_data', 'player_avatar_data.player_id', '=', 'players.id')
+            ->join('player_data', 'player_data.player_id', '=', 'players.id')
+            ->where('player_data.is_online', 1)
+            ->inRandomOrder()
+            ->limit($total)
+            ->get();
+    }
 
     public function confirmTwoFactorAuthentication($code)
     {
@@ -330,31 +327,31 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasOne(PlayerWebsiteData::class, 'player_id');
     }
-	
-	public function rank()
-	{
-    return $this->hasOneThrough(
-        UserRole::class,
-        PlayerRole::class,
-        'player_id',
-        'id',
-        'id',
-        'role_id'
-    );
-	}
+
+    public function rank()
+    {
+        return $this->hasOneThrough(
+            UserRole::class,
+            PlayerRole::class,
+            'player_id',
+            'id',
+            'id',
+            'role_id',
+        );
+    }
 
     public function role()
     {
         return $this->hasOne(PlayerRole::class, 'player_id');
     }
-	
-	public function getRankAttribute(): int
-	{
-    return $this->role->role_id ?? 1;
-	}
-	
-	public function roleLink()
-	{
-    return $this->hasOne(PlayerRole::class, 'player_id');
-	}
+
+    public function getRankAttribute(): int
+    {
+        return $this->role->role_id ?? 1;
+    }
+
+    public function roleLink()
+    {
+        return $this->hasOne(PlayerRole::class, 'player_id');
+    }
 }

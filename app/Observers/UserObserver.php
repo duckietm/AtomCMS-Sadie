@@ -14,11 +14,11 @@ class UserObserver
         // HC subscription on register
         if ((setting('give_hc_on_register') ?: '0') == '1') {
             PlayerSubscription::create([
-                'player_id'       => $user->id,
+                'player_id' => $user->id,
                 'subscription_id' => 1, // Habbo Club
-                'created_at'      => now(),
-                'expires_at'      => now()->addDays(
-                    (int) (setting('hc_on_register_duration') ?: 0)
+                'created_at' => now(),
+                'expires_at' => now()->addDays(
+                    (int) (setting('hc_on_register_duration') ?: 0),
                 ),
             ]);
         }
