@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\User\Ban;
 use App\Models\User\BannedIpAddress;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -22,8 +21,8 @@ class BannedController extends Controller
         $ban = $ipBan ?? $accountBan;
 
         return view('banned', [
-            'ban'        => $ban,
-            'ipBan'      => $ipBan,
+            'ban' => $ban,
+            'ipBan' => $ipBan,
             'accountBan' => $accountBan,
         ]);
     }

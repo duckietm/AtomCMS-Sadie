@@ -19,7 +19,6 @@ use App\Models\Miscellaneous\CameraWeb;
 use App\Models\Miscellaneous\WebsiteBetaCode;
 use App\Models\Shop\WebsitePaypalTransaction;
 use App\Models\Shop\WebsiteUsedShopVoucher;
-use App\Models\User\Ban;
 use App\Models\User\ClaimedReferralLog;
 use App\Models\User\PlayerAvatarData;
 use App\Models\User\PlayerData;
@@ -144,13 +143,13 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     public function ban()
-	{
-    return $this->hasOne(\App\Models\User\Ban::class, 'player_id')
-        ->where(function ($q) {
-            $q->whereNull('expires_at')
-              ->orWhere('expires_at', '>', now());
-        });
-	}
+    {
+        return $this->hasOne(\App\Models\User\Ban::class, 'player_id')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            });
+    }
 
     public function settings(): HasOne
     {
