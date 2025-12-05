@@ -11,11 +11,27 @@ class MeController extends Controller
 {
     public function __invoke(): View
     {
+        $user = Auth::user();
+
+        if ($user) {
+            $user->load([
+                'rank',
+                'avatar',
+                'data',
+            ]);
+        }
 
         return view('user.me', [
-            'onlineFriends' => Auth::user()?->getOnlineFriends(),
-            'user' => Auth::user()?->load('permission:id,rank_name'),
-            'articles' => WebsiteArticle::whereHas('user')->with('user:id,username,look')->latest()->take(5)->get(),
+            'onlineFriends' => $user?->getOnlineFriends(),
+            'user'          => $user,
+            'articles'      => WebsiteArticle::whereHas('user')
+                ->with([
+                    'user:id,username',
+                    'user.avatar:player_id,figure_code',
+                ])
+                ->latest()
+                ->take(5)
+                ->get(),
         ]);
     }
 }

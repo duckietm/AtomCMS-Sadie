@@ -6,24 +6,20 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class PlayerRole extends Model
+class PlayerSubscription extends Model
 {
-    protected $table = 'player_role';
-
+    protected $table = 'player_subscriptions'; // your table name
     public $timestamps = false;
 
-    protected $fillable = [
-        'player_id',
-        'role_id',
+    protected $guarded = ['id'];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'expires_at' => 'datetime',
     ];
 
     public function player(): BelongsTo
     {
         return $this->belongsTo(User::class, 'player_id');
-    }
-
-    public function role(): BelongsTo
-    {
-        return $this->belongsTo(Role::class, 'role_id');
     }
 }

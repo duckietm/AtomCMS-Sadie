@@ -19,9 +19,6 @@ use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         $this->app->singleton(
@@ -30,9 +27,6 @@ class FortifyServiceProvider extends ServiceProvider
         );
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         Fortify::createUsersUsing(CreateNewUser::class);
@@ -50,11 +44,17 @@ class FortifyServiceProvider extends ServiceProvider
                 'articles' => WebsiteArticle::latest('id')
                     ->take(4)
                     ->has('user')
-                    ->with('user:id,username,look')
+                    ->with([
+                        'user:id,username',
+                        'user.avatar:player_id,figure_code',
+                    ])
                     ->get(),
                 'photos' => CameraWeb::latest('id')
                     ->take(4)
-                    ->with('user:id,username,look')
+                    ->with([
+                        'user:id,username',
+                        'user.avatar:player_id,figure_code',
+                    ])
                     ->get(),
             ]);
         });
@@ -71,11 +71,17 @@ class FortifyServiceProvider extends ServiceProvider
                 'articles' => WebsiteArticle::latest('id')
                     ->take(4)
                     ->has('user')
-                    ->with('user:id,username,look')
+                    ->with([
+                        'user:id,username',
+                        'user.avatar:player_id,figure_code',
+                    ])
                     ->get(),
                 'photos' => CameraWeb::latest('id')
                     ->take(2)
-                    ->with('user:id,username,look')
+                    ->with([
+                        'user:id,username',
+                        'user.avatar:player_id,figure_code',
+                    ])
                     ->get(),
             ]);
         });
