@@ -12,15 +12,26 @@ class TeamService
     {
         $cacheEnabled = setting('enable_caching') === '1';
 
-        if (Cache::has('hotel_teams') && $cacheEnabled) {
+        if ($cacheEnabled && Cache::has('hotel_teams')) {
             return Cache::get('hotel_teams');
         }
 
-        $employees = WebsiteTeam::select(['id', 'rank_name', 'badge', 'staff_color', 'staff_background', 'job_description'])
+        $employees = WebsiteTeam::select([
+                'id',
+                'rank_name',
+                'badge',
+                'staff_color',
+                'staff_background',
+                'job_description',
+            ])
             ->where('hidden_rank', false)
             ->orderByDesc('id')
             ->with(['users' => function ($query) {
-                $query->select('id', 'username', 'look', 'motto', 'rank', 'team_id', 'online');
+                $query->select('id', 'username', 'team_id')
+                    ->with([
+                        'avatar:player_id,figure_code,motto',
+                        'data:player_id,is_online,last_online',
+                    ]);
             }])
             ->get();
 
