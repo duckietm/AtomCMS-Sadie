@@ -354,14 +354,14 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasOne(PlayerRole::class, 'player_id');
     }
-	
-	public function getLookAttribute(): ?string
-	{
-		return $this->avatar->figure_code ?? null;
-	}
-	
-	public function getMottoAttribute(): ?string
-	{
-		return $this->avatar->motto ?? null;
-	}
+
+    public function getLookAttribute(): ?string
+    {
+        return $this->avatar->figure_code ?? null;
+    }
+
+    public function getMottoAttribute(): ?string
+    {
+        return $this->avatar->motto ?? null;
+    }
 }
