@@ -2,8 +2,7 @@
 
 namespace App\Services\Community;
 
-use App\Models\Game\Permission;
-use App\Models\User;
+use App\Models\User\Role;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -18,18 +17,22 @@ class StaffService
             return Cache::get('staff_positions');
         }
 
-        $employees = Permission::query()
-            ->select('id', 'rank_name', 'badge', 'staff_color', 'job_description')
-            ->when(Auth::user()->rank < (int) setting('min_rank_to_see_hidden_staff'), function ($query) {
+        $currentRank = Auth::check() ? (int) Auth::user()->rank : 0;
+        $minSeeHidden = (int) setting('min_rank_to_see_hidden_staff');
+        $minStaffRank = (int) setting('min_staff_rank');
+
+        $employees = Role::query()
+            ->select('id', 'name', 'staff_color', 'job_description', 'hidden_rank', 'hidden_staff', 'staff_background')
+            ->when($currentRank < $minSeeHidden, function ($query) {
                 return $query->where('hidden_rank', false);
             })
-            ->where('id', '>=', setting('min_staff_rank'))
+            ->where('id', '>=', $minStaffRank)
             ->orderByDesc('id')
-            ->with(['users' => function ($query) {
-                $query->select('id', 'username', 'rank', 'motto', 'look', 'hidden_staff', 'online')
-                    ->when(Auth::user()->rank < (int) setting('min_rank_to_see_hidden_staff'), function ($query) {
-                        return $query->where('hidden_staff', false);
-                    });
+            ->with(['users' => function ($query) use ($currentRank, $minSeeHidden) {
+                $query->with([
+                    'avatar:player_id,figure_code,motto',
+                    'data:player_id,is_online,last_online',
+                ]);
             }])
             ->get();
 

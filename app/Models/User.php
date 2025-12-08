@@ -24,6 +24,7 @@ use App\Models\User\PlayerRelationship;
 use App\Models\User\PlayerRole;
 use App\Models\User\PlayerWebsiteData;
 use App\Models\User\Referral;
+use App\Models\User\Role;
 use App\Models\User\Role as UserRole;
 use App\Models\User\UserReferral;
 use App\Models\User\WebsiteUserGuestbook;
@@ -354,14 +355,32 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasOne(PlayerRole::class, 'player_id');
     }
-
-    public function getLookAttribute(): ?string
-    {
-        return $this->avatar->figure_code ?? null;
-    }
-
-    public function getMottoAttribute(): ?string
-    {
-        return $this->avatar->motto ?? null;
-    }
+	
+	public function staffRole()
+	
+	{
+		return $this->hasOneThrough(
+		Role::class,
+        PlayerRole::class,
+        'player_id',
+        'id',
+        'id',
+        'role_id'
+		);
+	}
+	
+	public function getOnlineAttribute(): bool
+	{
+		return (bool) ($this->data->is_online ?? false);
+	}
+	
+	public function getLookAttribute(): ?string
+	{
+		return $this->avatar->figure_code ?? null;
+	}
+	
+	public function getMottoAttribute(): ?string
+	{
+		return $this->avatar->motto ?? null;
+	}
 }

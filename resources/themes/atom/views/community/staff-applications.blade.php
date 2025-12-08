@@ -1,32 +1,44 @@
 <x-app-layout>
     @push('title', __('Staff'))
+
     <div class="col-span-12 lg:col-span-9 lg:w-[96%]">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
             @forelse($positions as $position)
-                <x-content.staff-content-section :badge="$position->permission->badge" :color="$position->permission->staff_color">
+                <x-content.staff-content-section
+                    :badge="$position->role->badge ?? null"   {{-- if you add badge to roles, or drop this --}}
+                    :color="$position->role->staff_color"
+                >
                     <x-slot:title>
-                        {{ $position->permission->rank_name }}
+                        {{ $position->role->name }}
                     </x-slot:title>
+
                     <x-slot:under-title>
-                        {{ $position->permission->job_description }}
+                        {{ $position->role->job_description }}
                     </x-slot:under-title>
+
                     <div class="text-center dark:text-gray-400">
                         <div class="mb-4 text-sm">
                             {!! $position->description !!}
                         </div>
+
                         <div class="mb-4 text-sm font-semibold">
-                            {{ __('Application Deadline :date', ['date' => $position->apply_to ? $position->apply_to->format('F j, Y, g:i A') : __('No deadline set')]) }}
+                            {{ __('Application Deadline :date', [
+                                'date' => $position->apply_to
+                                    ? $position->apply_to->format('F j, Y, g:i A')
+                                    : __('No deadline set'),
+                            ]) }}
                         </div>
                     </div>
+
                     <div class="flex justify-between">
-                        @if (auth()->user()->hasAppliedForPosition($position->permission->id))
+                        @if (auth()->user()->hasAppliedForPosition($position->role->id))
                             <x-form.danger-button>
-                                {{ __('You have already applied for :position', ['position' => $position->permission->rank_name]) }}
+                                {{ __('You have already applied for :position', ['position' => $position->role->name]) }}
                             </x-form.danger-button>
                         @else
                             <a href="{{ route('staff-applications.show', $position) }}" class="w-full">
                                 <x-form.secondary-button>
-                                    {{ __('Apply for :position', ['position' => $position->permission->rank_name]) }}
+                                    {{ __('Apply for :position', ['position' => $position->role->name]) }}
                                 </x-form.secondary-button>
                             </a>
                         @endif
@@ -49,6 +61,7 @@
             @endforelse
         </div>
     </div>
+
     <div class="col-span-12 lg:col-span-3 lg:w-[110%] space-y-4 lg:-ml-[32px]">
         <x-content.content-card icon="chat-icon" classes="border dark:border-gray-900">
             <x-slot:title>

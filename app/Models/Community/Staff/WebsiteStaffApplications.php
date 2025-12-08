@@ -2,8 +2,8 @@
 
 namespace App\Models\Community\Staff;
 
-use App\Models\Game\Permission;
 use App\Models\User;
+use App\Models\User\Role;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -19,9 +19,9 @@ class WebsiteStaffApplications extends Model
         'content',
     ];
 
-    public function rank(): BelongsTo
+    public function role(): BelongsTo
     {
-        return $this->belongsTo(Permission::class, 'rank_id');
+        return $this->belongsTo(Role::class, 'rank_id');
     }
 
     public function user(): BelongsTo
