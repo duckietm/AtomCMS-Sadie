@@ -32,9 +32,12 @@
                         </div>
                         <div class="overflow-y-auto px-3 py-2" style="max-height: 200px">
                             <b class="mr-1 font-bold">{{ __('Motto') }}:</b>{{ $friend->motto }}<br>
-                            <b
-                                class="mr-1 font-bold">{{ __('Online Since') }}
-                                :</b>{{ date(config('habbo.site.date_format'), $friend->last_online) }}
+                            <b class="mr-1 font-bold">{{ __('Online Since') }}:</b>
+							@if ($friend->last_online)
+								{{ \Carbon\Carbon::parse($friend->last_online)->format(config('habbo.site.date_format')) }}
+							@else
+								{{ __('Unknown') }}
+							@endif
                         </div>
                         <div data-popper-arrow></div>
                     </div>
