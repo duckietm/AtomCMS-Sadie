@@ -10,9 +10,10 @@ class ArticleService
 {
     public function getArticles(bool $paginate = false, int $perPage = 8): array|Collection|LengthAwarePaginator
     {
-        $query = WebsiteArticle::with(['user' => function ($query) {
-            $query->select('id', 'username', 'look');
-        }])->orderByDesc('id');
+        $query = WebsiteArticle::with([
+            'user:id,username',
+            'user.avatar:player_id,figure_code',
+        ])->orderByDesc('id');
 
         return $paginate ? $query->paginate($perPage) : $query->get();
     }
