@@ -17,13 +17,13 @@ class TeamService
         }
 
         $employees = WebsiteTeam::select([
-                'id',
-                'rank_name',
-                'badge',
-                'staff_color',
-                'staff_background',
-                'job_description',
-            ])
+            'id',
+            'rank_name',
+            'badge',
+            'staff_color',
+            'staff_background',
+            'job_description',
+        ])
             ->where('hidden_rank', false)
             ->orderByDesc('id')
             ->with(['users' => function ($query) {
