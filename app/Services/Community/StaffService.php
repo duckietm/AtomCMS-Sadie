@@ -28,7 +28,7 @@ class StaffService
             })
             ->where('id', '>=', $minStaffRank)
             ->orderByDesc('id')
-            ->with(['users' => function ($query) use ($currentRank, $minSeeHidden) {
+            ->with(['users' => function ($query) {
                 $query->with([
                     'avatar:player_id,figure_code,motto',
                     'data:player_id,is_online,last_online',
