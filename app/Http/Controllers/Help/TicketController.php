@@ -47,10 +47,12 @@ class TicketController extends Controller
         }
 
         $ticket->load([
-            'user:id,username,look',
-            'category',
-            'replies.user:id,username,look',
-        ]);
+			'user:id,username',
+			'user.avatar:player_id,figure_code',
+			'category',
+			'replies.user:id,username',
+			'replies.user.avatar:player_id,figure_code',
+		]);
 
         return view('help-center.tickets.edit', [
             'ticket' => $ticket,
@@ -81,10 +83,12 @@ class TicketController extends Controller
         }
 
         $ticket->load([
-            'user:id,username,look',
-            'category',
-            'replies.user:id,username,look',
-        ]);
+			'user:id,username',
+			'user.avatar:player_id,figure_code',
+			'category',
+			'replies.user:id,username',
+			'replies.user.avatar:player_id,figure_code',
+		]);
 
         return view('help-center.tickets.show', [
             'ticket' => $ticket,
