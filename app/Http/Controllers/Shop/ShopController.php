@@ -31,9 +31,11 @@ class ShopController extends Controller
         }
 
         return view('shop.shop', [
-            'articles' => $packages->with(['rank:id,rank_name', 'features'])->get(),
-            'categories' => WebsiteShopCategory::whereHas('articles')->get(),
-        ]);
+			'articles'   => $packages
+				->with([ 'role:id,name', 'features' ])
+				->get(),
+			'categories' => WebsiteShopCategory::whereHas('articles')->get(),
+		]);
     }
 
     private function giveBadges(User $user, string $badges)

@@ -3,10 +3,10 @@
 namespace App\Models\Shop;
 
 use App\Models\Game\Furniture\ItemBase;
-use App\Models\Game\Permission;
+use App\Models\User\Role;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 
 class WebsiteShopArticle extends Model
@@ -25,9 +25,9 @@ class WebsiteShopArticle extends Model
         return ItemBase::whereIn('id', $furnitureIds)->get();
     }
 
-    public function rank(): HasOne
+    public function role(): BelongsTo
     {
-        return $this->hasOne(Permission::class, 'id', 'give_rank');
+        return $this->belongsTo(Role::class, 'give_rank');
     }
 
     public function features(): HasMany
