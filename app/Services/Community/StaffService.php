@@ -18,7 +18,7 @@ class StaffService
             return Cache::get('staff_positions');
         }
 
-        $currentRank  = Auth::check() ? (int) Auth::user()->rank : 0;
+        $currentRank = Auth::check() ? (int) Auth::user()->rank : 0;
         $minSeeHidden = (int) setting('min_rank_to_see_hidden_staff');
         $minStaffRank = (int) setting('min_staff_rank');
 

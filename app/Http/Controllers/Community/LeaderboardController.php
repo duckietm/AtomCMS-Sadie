@@ -41,11 +41,11 @@ class LeaderboardController extends Controller
         };
 
         return view('leaderboard', [
-            'credits'           => $topCredits,
-            'duckets'           => $getBalanceTop('pixel_balance'),
-            'diamonds'          => $getBalanceTop('seasonal_balance'),
-            'mostOnline'        => $this->retrieveStats('gotw_points'),
-            'respectsReceived'  => $this->retrieveStats('respect_points'),
+            'credits' => $topCredits,
+            'duckets' => $getBalanceTop('pixel_balance'),
+            'diamonds' => $getBalanceTop('seasonal_balance'),
+            'mostOnline' => $this->retrieveStats('gotw_points'),
+            'respectsReceived' => $this->retrieveStats('respect_points'),
             'achievementScores' => $this->retrieveStats('achievement_score'),
         ]);
     }
