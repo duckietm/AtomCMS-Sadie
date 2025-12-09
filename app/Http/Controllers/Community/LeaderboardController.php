@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Community;
 
 use App\Http\Controllers\Controller;
-use App\Models\Game\Player\UserCurrency;
-use App\Models\Game\Player\UserSetting;
-use App\Models\User;
+use App\Models\User\PlayerData;
 use App\Services\Community\StaffService;
 use Illuminate\View\View;
 
@@ -20,37 +18,48 @@ class LeaderboardController extends Controller
 
     public function __invoke(): View
     {
-        $topCredits = User::query()
-            ->whereNotIn('id', $this->staffIds)
-            ->orderByDesc('credits')
+        $topCredits = PlayerData::query()
+            ->whereNotIn('player_id', $this->staffIds)
+            ->orderByDesc('credit_balance')
             ->take(9)
+            ->with([
+                'player:id,username',
+                'player.avatar:player_id,figure_code',
+            ])
             ->get();
 
-        $getUserCurrency = fn ($type) => UserCurrency::query()
-            ->whereNotIn('user_id', $this->staffIds)
-            ->where('type', $type)
-            ->orderByDesc('amount')
-            ->take(9)
-            ->with('user:id,username,look')
-            ->get();
+        $getBalanceTop = function (string $column) {
+            return PlayerData::query()
+                ->whereNotIn('player_id', $this->staffIds)
+                ->orderByDesc($column)
+                ->take(9)
+                ->with([
+                    'player:id,username',
+                    'player.avatar:player_id,figure_code',
+                ])
+                ->get();
+        };
 
         return view('leaderboard', [
-            'credits' => $topCredits,
-            'duckets' => $getUserCurrency(0),
-            'diamonds' => $getUserCurrency(5),
-            'mostOnline' => $this->retrieveSettings('online_time'),
-            'respectsReceived' => $this->retrieveSettings('respects_received'),
-            'achievementScores' => $this->retrieveSettings('achievement_score'),
+            'credits'           => $topCredits,
+            'duckets'           => $getBalanceTop('pixel_balance'),
+            'diamonds'          => $getBalanceTop('seasonal_balance'),
+            'mostOnline'        => $this->retrieveStats('gotw_points'),
+            'respectsReceived'  => $this->retrieveStats('respect_points'),
+            'achievementScores' => $this->retrieveStats('achievement_score'),
         ]);
     }
 
-    private function retrieveSettings($column)
+    private function retrieveStats(string $column)
     {
-        return UserSetting::select('user_id', $column)
-            ->whereNotIn('user_id', $this->staffIds)
+        return PlayerData::select('player_id', $column)
+            ->whereNotIn('player_id', $this->staffIds)
             ->orderByDesc($column)
             ->take(9)
-            ->with('user:id,username,look')
+            ->with([
+                'player:id,username',
+                'player.avatar:player_id,figure_code',
+            ])
             ->get();
     }
 }

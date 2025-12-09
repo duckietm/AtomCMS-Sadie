@@ -2,6 +2,7 @@
 
 namespace App\Services\Community;
 
+use App\Models\User;
 use App\Models\User\Role;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ class StaffService
             return Cache::get('staff_positions');
         }
 
-        $currentRank = Auth::check() ? (int) Auth::user()->rank : 0;
+        $currentRank  = Auth::check() ? (int) Auth::user()->rank : 0;
         $minSeeHidden = (int) setting('min_rank_to_see_hidden_staff');
         $minStaffRank = (int) setting('min_staff_rank');
 
@@ -52,10 +53,14 @@ class StaffService
             return Cache::get('staff_ids');
         }
 
-        $staffIds = User::select('id')
-            ->where('rank', '>=', setting('min_staff_rank'))
-            ->get()
-            ->pluck('id')->toArray();
+        $minStaffRank = (int) setting('min_staff_rank');
+
+        $staffIds = User::query()
+            ->whereHas('role', function ($query) use ($minStaffRank) {
+                $query->where('role_id', '>=', $minStaffRank);
+            })
+            ->pluck('id')
+            ->toArray();
 
         if ($cacheEnabled) {
             $cacheTimer = (int) setting('cache_timer');
