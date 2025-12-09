@@ -2,7 +2,7 @@
     <div class="flex gap-x-6">
         <x-top-header-currency icon="nav-credit-icon">
             <x-slot:currency>
-                {{ auth()->user()->credits }}
+                {{ auth()->user()->data->credit_balance ?? 0 }}
             </x-slot:currency>
 
             {{ __('Credits') }}

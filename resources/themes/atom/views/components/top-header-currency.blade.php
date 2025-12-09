@@ -1,4 +1,4 @@
-@props(['icon'])
+@props(['icon', 'currency'])
 
 <div class="hidden gap-x-3 md:flex">
     <div class="h-[25px] w-[25px] rounded-full {{ $icon }} outline-offset-[3px]"></div>
