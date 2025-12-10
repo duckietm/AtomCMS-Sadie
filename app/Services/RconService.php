@@ -3,9 +3,7 @@
 namespace App\Services;
 
 use App\Enums\CurrencyTypes;
-use App\Exceptions\RconConnectionException;
 use Illuminate\Support\Facades\Log;
-use JsonException;
 use Socket;
 
 class RconService
@@ -68,10 +66,10 @@ class RconService
 
     public function sendCommand(string $command, ?array $data = null)
     {
-		if (! $this->isConnected) {
+        if (! $this->isConnected) {
             $this->initialize();
         }
-		
+
         if (! $this->isConnected) {
             $error = 'RCON command failed: Not connected';
             Log::error($error);

@@ -27,11 +27,11 @@ class SendCurrency
 
         if ($useRcon) {
             return match ($type) {
-                'credits'  => (bool) $this->rcon->giveCredits($user, $amount),
-                'duckets'  => (bool) $this->rcon->giveDuckets($user, $amount),
+                'credits' => (bool) $this->rcon->giveCredits($user, $amount),
+                'duckets' => (bool) $this->rcon->giveDuckets($user, $amount),
                 'diamonds' => (bool) $this->rcon->giveDiamonds($user, $amount),
-                'points'   => (bool) $this->rcon->giveGotw($user, $amount),
-                default    => false,
+                'points' => (bool) $this->rcon->giveGotw($user, $amount),
+                default => false,
             };
         }
 
@@ -42,11 +42,11 @@ class SendCurrency
         }
 
         return match ($type) {
-            'credits'  => (bool) $data->increment('credit_balance', $amount),
-            'duckets'  => (bool) $data->increment('pixel_balance', $amount),
+            'credits' => (bool) $data->increment('credit_balance', $amount),
+            'duckets' => (bool) $data->increment('pixel_balance', $amount),
             'diamonds' => (bool) $data->increment('seasonal_balance', $amount),
-            'points'   => (bool) $data->increment('gotw_points', $amount),
-            default    => false,
+            'points' => (bool) $data->increment('gotw_points', $amount),
+            default => false,
         };
     }
 }
