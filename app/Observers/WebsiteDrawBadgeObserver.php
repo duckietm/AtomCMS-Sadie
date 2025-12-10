@@ -46,8 +46,8 @@ class WebsiteDrawBadgeObserver
         if (! $exists) {
             DB::table('player_badges')->insert([
                 'player_id' => $websiteDrawBadge->user_id,
-                'badge_id'  => $badgeId,
-                'slot'      => 0,
+                'badge_id' => $badgeId,
+                'slot' => 0,
             ]);
         }
 

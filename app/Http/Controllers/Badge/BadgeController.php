@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Badge;
 
 use App\Actions\SendCurrency;
-use App\Enums\CurrencyTypes;
 use App\Http\Controllers\Controller;
 use App\Models\WebsiteDrawBadge;
 use App\Services\SettingsService;
@@ -48,10 +47,10 @@ class BadgeController extends Controller
         $currencyType = $settingsService->getOrDefault('drawbadge_currency_type', 'credits');
 
         $currentAmount = match ($currencyType) {
-            'credits'  => $user->data->credit_balance   ?? 0,
-            'duckets'  => $user->data->pixel_balance    ?? 0,
+            'credits' => $user->data->credit_balance ?? 0,
+            'duckets' => $user->data->pixel_balance ?? 0,
             'diamonds' => $user->data->seasonal_balance ?? 0,
-            'points'   => $user->data->gotw_points      ?? 0,
+            'points' => $user->data->gotw_points ?? 0,
             default => 0,
         };
 
