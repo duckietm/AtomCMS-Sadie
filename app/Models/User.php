@@ -72,11 +72,11 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(Session::class);
     }
-	
-	public function ssoTokens(): HasMany
-	{
-		return $this->hasMany(PlayerSsoToken::class, 'player_id');
-	}
+
+    public function ssoTokens(): HasMany
+    {
+        return $this->hasMany(PlayerSsoToken::class, 'player_id');
+    }
 
     public function currency(string $currency)
     {
@@ -163,33 +163,32 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     public function ssoTicket(): string
-	{
-		$prefix = Str::replace(' ', '', setting('hotel_name') ?? 'Atom');
+    {
+        $prefix = Str::replace(' ', '', setting('hotel_name') ?? 'Atom');
 
-		$token = sprintf('%s-%s', $prefix, Str::uuid());
+        $token = sprintf('%s-%s', $prefix, Str::uuid());
 
-		if (PlayerSsoToken::where('token', $token)->exists()) {
-			return $this->ssoTicket();
-		}
+        if (PlayerSsoToken::where('token', $token)->exists()) {
+            return $this->ssoTicket();
+        }
 
-		$now = now();
-		$expiresAt = $now->copy()->addMinutes(10);
+        $now = now();
+        $expiresAt = $now->copy()->addMinutes(10);
 
-		$this->ssoTokens()->update([
-			'expires_at' => $now,
-			'used_at'    => $now,
-		]);
+        $this->ssoTokens()->update([
+            'expires_at' => $now,
+            'used_at' => $now,
+        ]);
 
-		$this->ssoTokens()->create([
-			'token'      => $token,
-			'created_at' => $now,
-			'expires_at' => $expiresAt,
-			'used_at'    => null,
-		]);
+        $this->ssoTokens()->create([
+            'token' => $token,
+            'created_at' => $now,
+            'expires_at' => $expiresAt,
+            'used_at' => null,
+        ]);
 
-		return $token;
-	}
-
+        return $token;
+    }
 
     public function betaCode(): HasOne
     {
