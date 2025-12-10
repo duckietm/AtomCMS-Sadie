@@ -16,37 +16,49 @@ class WebsiteDrawBadgeObserver
         $badgeCode = pathinfo($websiteDrawBadge->badge_path, PATHINFO_FILENAME);
 
         if (! $websiteDrawBadge->published) {
-            DB::table('users_badges')
-                ->where('user_id', $websiteDrawBadge->user_id)
-                ->where('badge_code', $badgeCode)
-                ->delete();
+            $badgeId = DB::table('badges')->where('code', $badgeCode)->value('id');
 
-            // Remove from JSON
+            if ($badgeId) {
+                DB::table('player_badges')
+                    ->where('player_id', $websiteDrawBadge->user_id)
+                    ->where('badge_id', $badgeId)
+                    ->delete();
+            }
+
             $this->updateExternalTexts(false, $badgeCode);
 
             return;
         }
 
-        $exists = DB::table('users_badges')
-            ->where('user_id', $websiteDrawBadge->user_id)
-            ->where('badge_code', $badgeCode)
-            ->exists();
+        $badgeId = DB::table('badges')->where('code', $badgeCode)->value('id');
 
-        if (! $exists) {
-            DB::table('users_badges')->insert([
-                'user_id' => $websiteDrawBadge->user_id,
-                'slot_id' => 0,
-                'badge_code' => $badgeCode,
+        if (! $badgeId) {
+            $badgeId = DB::table('badges')->insertGetId([
+                'code' => $badgeCode,
             ]);
         }
 
-        // Add to JSON
+        $exists = DB::table('player_badges')
+            ->where('player_id', $websiteDrawBadge->user_id)
+            ->where('badge_id', $badgeId)
+            ->exists();
+
+        if (! $exists) {
+            DB::table('player_badges')->insert([
+                'player_id' => $websiteDrawBadge->user_id,
+                'badge_id'  => $badgeId,
+                'slot'      => 0,
+            ]);
+        }
+
         $this->updateExternalTexts(true, $badgeCode, $websiteDrawBadge->badge_name, $websiteDrawBadge->badge_desc);
     }
 
     protected function updateExternalTexts(bool $add, string $badgeCode, ?string $name = null, ?string $desc = null): void
     {
-        $filePath = DB::table('website_settings')->where('key', 'nitro_external_texts_file')->value('value');
+        $filePath = DB::table('website_settings')
+            ->where('key', 'nitro_external_texts_file')
+            ->value('value');
 
         if (! $filePath || ! file_exists($filePath) || ! is_writable($filePath)) {
             return;

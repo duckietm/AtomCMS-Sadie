@@ -48,10 +48,10 @@ class BadgeController extends Controller
         $currencyType = $settingsService->getOrDefault('drawbadge_currency_type', 'credits');
 
         $currentAmount = match ($currencyType) {
-            'credits' => $user->credits ?? 0,
-            'duckets' => $user->currencies()->where('type', CurrencyTypes::Duckets)->value('amount') ?? 0,
-            'diamonds' => $user->currencies()->where('type', CurrencyTypes::Diamonds)->value('amount') ?? 0,
-            'points' => $user->currencies()->where('type', CurrencyTypes::Points)->value('amount') ?? 0,
+            'credits'  => $user->data->credit_balance   ?? 0,
+            'duckets'  => $user->data->pixel_balance    ?? 0,
+            'diamonds' => $user->data->seasonal_balance ?? 0,
+            'points'   => $user->data->gotw_points      ?? 0,
             default => 0,
         };
 
@@ -59,7 +59,7 @@ class BadgeController extends Controller
             return response()->json(['success' => false, 'message' => 'Insufficient ' . $currencyType . '.'], 400);
         }
 
-        $result = $sendCurrency->execute($user, $currencyType, -$cost);
+        $result = $sendCurrency->execute($user, $currencyType, -$cost, false);
 
         if ($result === false) {
             return response()->json(['success' => false, 'message' => 'Failed to deduct ' . $currencyType . '.'], 500);
