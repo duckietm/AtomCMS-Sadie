@@ -22,6 +22,7 @@ use App\Models\User\PlayerAvatarData;
 use App\Models\User\PlayerData;
 use App\Models\User\PlayerFriendship;
 use App\Models\User\PlayerRole;
+use App\Models\User\PlayerSsoToken;
 use App\Models\User\PlayerWebsiteData;
 use App\Models\User\Referral;
 use App\Models\User\Role;
@@ -71,6 +72,11 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(Session::class);
     }
+	
+	public function ssoTokens(): HasMany
+	{
+		return $this->hasMany(PlayerSsoToken::class, 'player_id');
+	}
 
     public function currency(string $currency)
     {
@@ -157,19 +163,33 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     public function ssoTicket(): string
-    {
-        $sso = sprintf('%s-%s', Str::replace(' ', '', setting('hotel_name')), Str::uuid());
+	{
+		$prefix = Str::replace(' ', '', setting('hotel_name') ?? 'Atom');
 
-        if (User::where('auth_ticket', $sso)->exists()) {
-            return $this->ssoTicket();
-        }
+		$token = sprintf('%s-%s', $prefix, Str::uuid());
 
-        $this->update([
-            'auth_ticket' => $sso,
-        ]);
+		if (PlayerSsoToken::where('token', $token)->exists()) {
+			return $this->ssoTicket();
+		}
 
-        return $sso;
-    }
+		$now = now();
+		$expiresAt = $now->copy()->addMinutes(10);
+
+		$this->ssoTokens()->update([
+			'expires_at' => $now,
+			'used_at'    => $now,
+		]);
+
+		$this->ssoTokens()->create([
+			'token'      => $token,
+			'created_at' => $now,
+			'expires_at' => $expiresAt,
+			'used_at'    => null,
+		]);
+
+		return $token;
+	}
+
 
     public function betaCode(): HasOne
     {
