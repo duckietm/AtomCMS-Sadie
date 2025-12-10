@@ -118,7 +118,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function badges(): HasMany
     {
         return $this->hasMany(UserBadge::class, 'player_id', 'id')
-			->with('badge');
+            ->with('badge');
     }
 
     public function rooms(): HasMany
@@ -255,8 +255,8 @@ class User extends Authenticatable implements FilamentUser, HasName
             ->join('players', 'players.id', '=', 'player_friendships.target_player_id')
             ->join('player_avatar_data', 'player_avatar_data.player_id', '=', 'players.id')
             ->join('player_data', 'player_data.player_id', '=', 'players.id')
-			->where('player_friendships.origin_player_id', $this->id)
-			->where('player_friendships.status', 1)
+            ->where('player_friendships.origin_player_id', $this->id)
+            ->where('player_friendships.status', 1)
             ->where('player_data.is_online', 1)
             ->inRandomOrder()
             ->limit($total)
