@@ -27,7 +27,7 @@
                         <img src="{{ asset('/assets/images/profile/credits.png') }}" alt="">
 
                         <h4 class="text-[#b16d18] font-semibold text-2xl">
-                            {{ $user->credits }}
+                            {{ $user->data->credit_balance }}
                         </h4>
                     </div>
 
@@ -90,17 +90,19 @@
 
                         <div class="flex flex-wrap gap-4 justify-between">
                             @forelse($groups as $group)
-                                <div class="h-[70px] w-[70px] rounded-full border-2 dark:border-gray-700 overflow-hidden flex items-center justify-center p-1 rounded-md cursor-pointer friend"
-                                    data-tippy-content="{{ $group->name ?? 'Unknown' }}">
-                                    <img src="{{ setting('group_badge_path') }}/{{ $group->badge }}.png"
-                                        alt="">
-                                </div>
-                            @empty
-                                <div class="w-full">
-                                    {{ __('It seems like :user is not a member of any groups.', ['user' => $user->username]) }}
-
-                                </div>
-                            @endforelse
+    <div
+        class="h-[70px] w-[70px] rounded-full border-2 dark:border-gray-700 overflow-hidden flex items-center justify-center p-1 rounded-md cursor-pointer friend"
+        data-tippy-content="{{ $group->name ?? 'Unknown' }}">
+        <img
+            src="{{ asset('/assets/images/profile/group_placeholder.png') }}"  {{-- placeholder --}}
+            alt="{{ $group->name ?? 'Group' }}"
+        >
+    </div>
+@empty
+    <div class="w-full">
+        {{ __('It seems like :user is not a member of any groups.', ['user' => $user->username]) }}
+    </div>
+@endforelse
                         </div>
                     </x-user.profile-info-card>
                 </div>
@@ -131,17 +133,12 @@
                                             >
 
                                             <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-                                                <div class="{{ $room->users > 0 ? 'bg-[#00800B]' : 'bg-gray-400' }} px-1 py-[1px] font-semibold rounded flex gap-x-[3px] text-white items-center text-xs">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-[12px]" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path
-                                                            fill-rule="evenodd"
-                                                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                                            clip-rule="evenodd"
-                                                        />
-                                                    </svg>
-
-                                                    {{ $room->users }}
-                                                </div>
+                                                <div class="{{ $room->max_users_allowed > 0 ? 'bg-[#00800B]' : 'bg-gray-400' }} px-1 py-[1px] font-semibold rounded flex gap-x-[3px] text-white items-center text-xs">
+													<svg xmlns="http://www.w3.org/2000/svg" class="h-[12px]" viewBox="0 0 20 20" fill="currentColor">
+														<path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+													</svg>
+													{{ $room->max_users_allowed }}
+												</div>
                                             </div>
                                         </div>
                                     </div>
@@ -180,20 +177,27 @@
                         </x-slot:title>
 
                         <div class="grid grid-cols-4 gap-2 xl:grid-cols-6 xl:pl-3">
-                            @forelse($friends as $friend)
-                                <a href="{{ route('profile.show', $friend->user->username ?? 'SystemAccount') }}"
-                                    class="h-[70px] w-[70px] rounded-full border-2 dark:border-gray-700 overflow-hidden flex items-center p-1 rounded-md cursor-pointer friend"
-                                    data-tippy-content="{{ $friend->user->username ?? 'Unknown' }}">
-                                    <img class="mt-6 transition duration-200 ease-in-out hover:scale-110 min-w-[64px] h-[110px] -ml-1"
-                                        src="{{ setting('avatar_imager') }}{{ $friend->user?->look }}"
-                                        alt="">
-                                </a>
-                            @empty
-                                <div class="col-span-6">
-                                    {{ __('It seems like :user has no friends.', ['user' => $user->username]) }}
-                                </div>
-                            @endforelse
-                        </div>
+						@forelse($friends as $friend)
+							@php
+								$friendUser = $friend->origin_player_id === $user->id ? $friend->targetPlayer : $friend->originPlayer;
+							@endphp
+    
+						@if ($friendUser)
+							<a href="{{ route('profile.show', $friendUser->username) }}"
+								class="h-[70px] w-[70px] rounded-full border-2 dark:border-gray-700 overflow-hidden flex items-center p-1 cursor-pointer friend"
+								data-tippy-content="{{ $friendUser->username }}">
+           
+								<img class="mt-6 hover:scale-110 transition min-w-[64px] h-[110px] -ml-1"
+								src="{{ setting('avatar_imager') }}{{ $friendUser->look }}"
+								alt="{{ $friendUser->username }}">
+							</a>
+						@endif
+					@empty
+						<div class="col-span-6">
+							{{ __('It seems like :user has no friends.', ['user' => $user->username]) }}
+						</div>
+					@endforelse
+					</div>
                     </x-user.profile-info-card>
                 </div>
             </div>

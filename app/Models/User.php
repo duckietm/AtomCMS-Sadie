@@ -20,7 +20,7 @@ use App\Models\Shop\WebsiteUsedShopVoucher;
 use App\Models\User\ClaimedReferralLog;
 use App\Models\User\PlayerAvatarData;
 use App\Models\User\PlayerData;
-use App\Models\User\PlayerRelationship;
+use App\Models\User\PlayerFriendship;
 use App\Models\User\PlayerRole;
 use App\Models\User\PlayerWebsiteData;
 use App\Models\User\Referral;
@@ -117,7 +117,8 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public function badges(): HasMany
     {
-        return $this->hasMany(UserBadge::class);
+        return $this->hasMany(UserBadge::class, 'player_id', 'id')
+			->with('badge');
     }
 
     public function rooms(): HasMany
@@ -127,7 +128,7 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public function friends(): HasMany
     {
-        return $this->hasMany(PlayerRelationship::class, 'origin_player_id');
+        return $this->hasMany(PlayerFriendship::class, 'origin_player_id');
     }
 
     public function referralsNeeded()
@@ -242,18 +243,20 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public function getOnlineFriends(int $total = 10)
     {
-        return $this->friends()
+        return PlayerFriendship::query()
             ->select([
-                'player_relationships.target_player_id as friend_id',
+                'player_friendships.target_player_id as friend_id',
                 'players.id',
                 'players.username',
                 'player_avatar_data.figure_code as look',
                 'player_avatar_data.motto',
                 'player_data.last_online',
             ])
-            ->join('players', 'players.id', '=', 'player_relationships.target_player_id')
+            ->join('players', 'players.id', '=', 'player_friendships.target_player_id')
             ->join('player_avatar_data', 'player_avatar_data.player_id', '=', 'players.id')
             ->join('player_data', 'player_data.player_id', '=', 'players.id')
+			->where('player_friendships.origin_player_id', $this->id)
+			->where('player_friendships.status', 1)
             ->where('player_data.is_online', 1)
             ->inRandomOrder()
             ->limit($total)

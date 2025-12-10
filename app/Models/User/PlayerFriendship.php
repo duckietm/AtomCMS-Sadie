@@ -6,26 +6,21 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class PlayerRelationship extends Model
+class PlayerFriendship extends Model
 {
-    protected $table = 'player_relationships';
-
-    public $timestamps = false;
+    protected $table = 'player_friendships';
 
     protected $guarded = ['id'];
 
-    public function origin(): BelongsTo
+    public $timestamps = false;
+
+    public function originPlayer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'origin_player_id');
     }
 
-    public function target(): BelongsTo
+    public function targetPlayer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'target_player_id');
-    }
-
-    public function type()
-    {
-        return $this->belongsTo(PlayerRelationshipType::class, 'type_id');
     }
 }

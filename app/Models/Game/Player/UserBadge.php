@@ -8,16 +8,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserBadge extends Model
 {
-    protected $table = 'users_badges';
-
-    protected $primaryKey = 'user_id';
-
-    protected $guarded = [];
+    protected $table = 'player_badges';
 
     public $timestamps = false;
 
-    public function user(): BelongsTo
+    protected $fillable = [
+        'player_id',
+        'badge_id',
+        'slot',
+    ];
+
+    public function player(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'player_id');
+    }
+
+    public function badge(): BelongsTo
+    {
+        return $this->belongsTo(Badge::class, 'badge_id');
+    }
+
+    public function getBadgeCodeAttribute(): ?string
+    {
+        return $this->badge->code ?? null;
     }
 }
