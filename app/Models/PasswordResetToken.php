@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
 class PasswordResetToken extends Model
 {
     protected $primaryKey = 'token';
@@ -12,14 +13,16 @@ class PasswordResetToken extends Model
     protected $fillable = ['email', 'token', 'created_at'];
 
     protected $casts = [
-        'created_at' => 'date',
+        'created_at' => 'datetime',
     ];
 
-    // timestamps = true, but we don't have "UPDATED_AT". To prevent an error, we set the default value to `null`.
     public const UPDATED_AT = null;
+
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'email', 'mail');
+        return $this->belongsTo(User::class, 'email', 'email');
     }
 }

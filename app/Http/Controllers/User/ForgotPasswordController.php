@@ -18,14 +18,15 @@ class ForgotPasswordController extends Controller
     }
 
     public function submitForgetPassword(Request $request)
-    {
-        $request->validate([
-            'mail' => 'required|email',
-        ]);
+	{
+    $request->validate([
+        'mail' => 'required|email',
+    ]);
 
-        // Do not tell the user that this email does not exist to prevent possible attacks
-        if (User::where('mail', $request->mail)->exists()) {
+    try {
+        if (User::where('email', $request->mail)->exists()) {
             $token = Str::uuid();
+
             PasswordResetToken::create([
                 'email' => $request->mail,
                 'token' => $token,
@@ -37,20 +38,44 @@ class ForgotPasswordController extends Controller
             });
         }
 
-        return back()->with('success', __('We have e-mailed your password reset link!'));
+    } catch (\Exception $e) {
+        \Log::error('Mail sending failed', [
+            'error' => $e->getMessage()
+        ]);
+
+        return back()->with('error', __(
+            'Unable to send email. Please verify your mail settings in the .env file. (Host: :host, Port: :port)',
+            [
+                'host' => env('MAIL_HOST', 'unknown'),
+                'port' => env('MAIL_PORT', 'unknown')
+            ]
+        ));
     }
+
+    return back()->with('success', __('We have e-mailed your password reset link!'));
+	}
+
 
     public function showResetPassword(Request $request, string $token)
     {
-        $prt = PasswordResetToken::select('token', 'created_at')->where('token', $token)->first();
+        $prt = PasswordResetToken::select('token', 'created_at')
+            ->where('token', $token)
+            ->first();
+
         if ($prt === null) {
-            return to_route('forgot.password.get')->withErrors('message', __('This token has expired!'));
+            return to_route('forgot.password.get')->withErrors([
+                'message' => __('This token has expired!'),
+            ]);
         }
-        $tokenExpiration = Carbon::now()->subMinutes(config('habbo.password_reset_token_time'));
-        if ($prt->created_at->gte($tokenExpiration)) { // gte = greater than or equals
+
+        $tokenExpirationCutoff = Carbon::now()->subMinutes(config('habbo.password_reset_token_time'));
+
+        if ($prt->created_at->lte($tokenExpirationCutoff)) {
             $prt->delete();
 
-            return to_route('forgot.password.get')->withErrors('message', __('This token has expired!'));
+            return to_route('forgot.password.get')->withErrors([
+                'message' => __('This token has expired!'),
+            ]);
         }
 
         return view('auth.passwords.reset', [
@@ -65,12 +90,18 @@ class ForgotPasswordController extends Controller
             'password_confirmation' => 'required',
         ]);
 
-        $prt = PasswordResetToken::select('email', 'token')->where('token', $token)->first();
+        $prt = PasswordResetToken::select('email', 'token')
+            ->where('token', $token)
+            ->first();
+
         if ($prt === null) {
-            return to_route('forgot.password.get')->withErrors('message', __('This token has expired!'));
+            return to_route('forgot.password.get')->withErrors([
+                'message' => __('This token has expired!'),
+            ]);
         }
 
         $prt->user->changePassword($request->password);
+
         $prt->delete();
 
         return to_route('login')->with('success', __('Your password has been successfully reset!'));
