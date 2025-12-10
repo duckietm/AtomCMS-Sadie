@@ -18,43 +18,42 @@ class ForgotPasswordController extends Controller
     }
 
     public function submitForgetPassword(Request $request)
-	{
-    $request->validate([
-        'mail' => 'required|email',
-    ]);
-
-    try {
-        if (User::where('email', $request->mail)->exists()) {
-            $token = Str::uuid();
-
-            PasswordResetToken::create([
-                'email' => $request->mail,
-                'token' => $token,
-            ]);
-
-            Mail::send('email.forgetPassword', ['token' => $token], function ($message) use ($request) {
-                $message->to($request->mail);
-                $message->subject('Reset Password');
-            });
-        }
-
-    } catch (\Exception $e) {
-        \Log::error('Mail sending failed', [
-            'error' => $e->getMessage()
+    {
+        $request->validate([
+            'mail' => 'required|email',
         ]);
 
-        return back()->with('error', __(
-            'Unable to send email. Please verify your mail settings in the .env file. (Host: :host, Port: :port)',
-            [
-                'host' => env('MAIL_HOST', 'unknown'),
-                'port' => env('MAIL_PORT', 'unknown')
-            ]
-        ));
+        try {
+            if (User::where('email', $request->mail)->exists()) {
+                $token = Str::uuid();
+
+                PasswordResetToken::create([
+                    'email' => $request->mail,
+                    'token' => $token,
+                ]);
+
+                Mail::send('email.forgetPassword', ['token' => $token], function ($message) use ($request) {
+                    $message->to($request->mail);
+                    $message->subject('Reset Password');
+                });
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Mail sending failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', __(
+                'Unable to send email. Please verify your mail settings in the .env file. (Host: :host, Port: :port)',
+                [
+                    'host' => env('MAIL_HOST', 'unknown'),
+                    'port' => env('MAIL_PORT', 'unknown'),
+                ],
+            ));
+        }
+
+        return back()->with('success', __('We have e-mailed your password reset link!'));
     }
-
-    return back()->with('success', __('We have e-mailed your password reset link!'));
-	}
-
 
     public function showResetPassword(Request $request, string $token)
     {
