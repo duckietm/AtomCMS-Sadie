@@ -8,14 +8,37 @@
             </x-slot:title>
 
             <x-slot:under-title>
-            {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+                {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
             </x-slot:under-title>
+
+            @if (session('success'))
+                <div class="mb-4 rounded border border-green-300 bg-green-100 px-4 py-3 text-sm text-green-800">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mb-4 rounded border border-red-300 bg-red-100 px-4 py-3 text-sm text-red-800">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if ($errors->has('mail'))
+                <div class="mb-4 rounded border border-red-300 bg-red-100 px-4 py-3 text-sm text-red-800">
+                    {{ $errors->first('mail') }}
+                </div>
+            @endif
+
+            @if ($errors->has('message'))
+                <div class="mb-4 rounded border border-red-300 bg-red-100 px-4 py-3 text-sm text-red-800">
+                    {{ $errors->first('message') }}
+                </div>
+            @endif
 
             <form method="POST" action="{{ route('forgot.password.post') }}">
                 @csrf
 
-                 <!-- Email Address -->
-                 <div>
+                <div>
                     <div class="flex flex-col gap-y-2">
                         <x-form.label for="mail">
                             {{ __('Email') }}
@@ -26,7 +49,12 @@
                         </x-form.label>
                     </div>
 
-                    <x-form.input name="mail" type="email" placeholder="{{ __('Enter your email') }}"/>
+                    <x-form.input
+                        name="mail"
+                        type="email"
+                        value="{{ old('mail') }}"
+                        placeholder="{{ __('Enter your email') }}"
+                    />
                 </div>
 
                 <div class="mt-4">
