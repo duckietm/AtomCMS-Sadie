@@ -44,9 +44,10 @@
                 @if (setting('google_recaptcha_enabled'))
                     <div class="g-recaptcha" data-sitekey="{{ config('habbo.site.recaptcha_site_key') }}"></div>
                 @endif
-                @if (setting('cloudflare_turnstile_enabled'))
-                    <x-turnstile />
-                @endif
+                
+				@if (setting('cloudflare_turnstile_enabled'))
+					<div class="cf-turnstile" data-sitekey="{{ config('turnstile.turnstile_site_key') }}"></div>
+				@endif
 
                 <x-form.secondary-button type="submit" class="mt-4">
                     {{ __('Verify') }}
