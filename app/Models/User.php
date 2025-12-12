@@ -9,7 +9,6 @@ use App\Models\Community\Staff\WebsiteTeam;
 use App\Models\Game\Furniture\Item;
 use App\Models\Game\Permission;
 use App\Models\Game\Player\UserBadge;
-use App\Models\Game\Player\UserSetting;
 use App\Models\Game\Player\UserSubscription;
 use App\Models\Game\Room;
 use App\Models\Help\WebsiteHelpCenterTicket;
@@ -155,11 +154,6 @@ class User extends Authenticatable implements FilamentUser, HasName
                 $q->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
             });
-    }
-
-    public function settings(): HasOne
-    {
-        return $this->hasOne(UserSetting::class);
     }
 
     public function ssoTicket(): string

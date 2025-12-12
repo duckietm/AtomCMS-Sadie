@@ -14,12 +14,16 @@ use Illuminate\View\View;
 
 class AccountSettingsController extends Controller
 {
-    public function __construct(private readonly SessionService $sessionService, private readonly UserService $userService, private readonly RconService $rconService) {}
+    public function __construct(
+        private readonly SessionService $sessionService,
+        private readonly UserService $userService,
+        private readonly RconService $rconService
+    ) {}
 
     public function edit(): View
     {
         return view('user.settings.account', [
-            'user' => Auth::user()->load('settings:allow_name_change'),
+            'user' => Auth::user(),
         ]);
     }
 
@@ -36,30 +40,35 @@ class AccountSettingsController extends Controller
     {
         $user = Auth::user();
 
-        if ($user === null) {
-            return redirect()->back()->withErrors('User not found');
+        if (! $user) {
+            return back()->withErrors(['message' => 'User not found']);
         }
 
-        // $allowedNameChange = $user->settings?->allow_name_change && $user->username !== $request->input('username');
-
-        if (! $this->rconService->isConnected() && Auth::user()->online === '1') {
-            return back()->withErrors('You must be offline to change your account settings');
+        if (! $this->rconService->isConnected() && $user->online) {
+            return back()->withErrors(['message' => __('You must be offline to change your account settings')]);
         }
 
-        /** if ($allowedNameChange) {
-            $this->rconService->disconnectUser($user);
-            $this->userService->updateField($user, 'username', $request->input('username'));
-        } **/
-        if ($user->mail !== $request->input('mail')) {
-            $this->userService->updateField($user, 'mail', $request->input('mail'));
+        if ($user->email !== $request->input('mail')) {
+			$this->userService->updateField($user, 'email', $request->input('mail'));
+		}
+
+
+        $newMotto = $request->input('motto');
+        $currentMotto = $user->motto;
+
+        if ($currentMotto !== $newMotto) {
+            if ($this->rconService->isConnected()) {
+                $this->rconService->setMotto($user, $newMotto);
+            }
+
+            $user->avatar()->updateOrCreate(
+                ['player_id' => $user->id],
+                ['motto' => $newMotto]
+            );
         }
 
-        if ($user->motto !== $request->input('motto')) {
-            $this->rconService->setMotto($user, $request->input('motto'));
-            $this->userService->updateField($user, 'motto', $request->input('motto'));
-        }
-
-        return redirect()->route('settings.account.show')->with('success', __('Your account settings has been updated'));
+        return to_route('settings.account.show')
+            ->with('success', __('Your account settings has been updated'));
     }
 
     public function twoFactor(): View
