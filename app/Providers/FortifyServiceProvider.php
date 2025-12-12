@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\DisableTwoFactorAuthentication;
 use App\Actions\Fortify\RedirectIfTwoFactorConfirmed;
+use App\Actions\Fortify\ValidateTurnstile;
 use App\Models\Articles\WebsiteArticle;
 use App\Models\Miscellaneous\CameraWeb;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -102,6 +103,8 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::authenticateThrough(function () {
             return array_filter([
                 config('fortify.limiters.login') ? null : EnsureLoginIsNotThrottled::class,
+
+                ValidateTurnstile::class,
 
                 Features::enabled(Features::twoFactorAuthentication()) ? RedirectIfTwoFactorConfirmed::class : null,
                 AttemptToAuthenticate::class,

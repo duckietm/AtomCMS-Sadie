@@ -166,10 +166,13 @@ class CreateNewUser implements CreatesNewUsers
             'beta_code' => ['sometimes', 'string', new BetaCodeRule],
             'terms' => ['required', 'accepted'],
             'g-recaptcha-response' => ['sometimes', 'string', new GoogleRecaptchaRule],
-            'cf-turnstile-response' => [app(Turnstile::class)],
+            'cf-turnstile-response' => setting('cloudflare_turnstile_enabled')
+                ? ['required', app(Turnstile::class)]
+                : ['nullable'],
         ];
 
         $messages = [
+            'cf-turnstile-response.required' => __('Please complete the captcha.'),
             'g-recaptcha-response.required' => __('The Google recaptcha must be completed'),
             'g-recaptcha-response.string' => __('The google recaptcha was submitted with an invalid type'),
         ];

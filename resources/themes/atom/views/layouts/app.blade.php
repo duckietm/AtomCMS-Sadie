@@ -21,7 +21,9 @@
 
     @vite(['resources/themes/' .  setting('theme') . '/css/app.scss', 'resources/themes/' .  setting('theme') . '/js/app.js'], 'build')
     @stack('scripts')
-    <x-turnstile.scripts />
+    @if (setting('cloudflare_turnstile_enabled'))
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endif
 </head>
 
 <body class="flex min-h-screen flex-col site-bg dark:bg-gray-800">
