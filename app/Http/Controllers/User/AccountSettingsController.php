@@ -17,7 +17,7 @@ class AccountSettingsController extends Controller
     public function __construct(
         private readonly SessionService $sessionService,
         private readonly UserService $userService,
-        private readonly RconService $rconService
+        private readonly RconService $rconService,
     ) {}
 
     public function edit(): View
@@ -49,9 +49,8 @@ class AccountSettingsController extends Controller
         }
 
         if ($user->email !== $request->input('mail')) {
-			$this->userService->updateField($user, 'email', $request->input('mail'));
-		}
-
+            $this->userService->updateField($user, 'email', $request->input('mail'));
+        }
 
         $newMotto = $request->input('motto');
         $currentMotto = $user->motto;
@@ -63,7 +62,7 @@ class AccountSettingsController extends Controller
 
             $user->avatar()->updateOrCreate(
                 ['player_id' => $user->id],
-                ['motto' => $newMotto]
+                ['motto' => $newMotto],
             );
         }
 
