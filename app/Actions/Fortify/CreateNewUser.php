@@ -110,31 +110,23 @@ class CreateNewUser implements CreatesNewUsers
             ]);
         }
 
-        if (isset($input['referral_code'])) {
-            $referralUser = User::query()
-                ->where('referral_code', '=', $input['referral_code'])
-                ->first();
+        if (!empty($input['referral_code'])) {
+    $referralUser = User::query()
+        ->where('referral_code', $input['referral_code'])
+        ->first();
 
-            if (is_null($referralUser)) {
-                return redirect(RouteServiceProvider::HOME);
-            }
+    if ($referralUser) {
+        $referralUser->load('website');
 
-            $referralUser->load('website');
+        $sameIp =
+            ($referralUser->website?->initial_ip === $ip) ||
+            ($referralUser->website?->last_ip === $ip);
 
-            $sameIp =
-                ($referralUser->website?->initial_ip === $ip) ||
-                ($referralUser->website?->last_ip === $ip);
-
-            if ($sameIp) {
-                return redirect(RouteServiceProvider::HOME);
-            }
-
+        if (! $sameIp) {
             $referralUser->referrals()->updateOrCreate(
                 ['user_id' => $referralUser->id],
                 [
-                    'referrals_total' => $referralUser->referrals != null
-                        ? $referralUser->referrals->referrals_total + 1
-                        : 1,
+                    'referrals_total' => ($referralUser->referrals?->referrals_total ?? 0) + 1,
                 ],
             );
 
@@ -143,6 +135,8 @@ class CreateNewUser implements CreatesNewUsers
                 'referred_user_ip' => $ip,
             ]);
         }
+    }
+}
 
         if (setting('enable_discord_webhook') === '1') {
             $this->sendDiscordWebhook($user->username, $ip, $user->email);
