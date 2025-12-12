@@ -9,7 +9,6 @@ use App\Models\User\PlayerAvatarData;
 use App\Models\User\PlayerData;
 use App\Models\User\PlayerRole;
 use App\Models\User\PlayerWebsiteData;
-use App\Providers\RouteServiceProvider;
 use App\Rules\BetaCodeRule;
 use App\Rules\GoogleRecaptchaRule;
 use App\Rules\WebsiteWordfilterRule;
@@ -110,38 +109,32 @@ class CreateNewUser implements CreatesNewUsers
             ]);
         }
 
-        if (isset($input['referral_code'])) {
+        if (! empty($input['referral_code'])) {
             $referralUser = User::query()
-                ->where('referral_code', '=', $input['referral_code'])
+                ->where('referral_code', $input['referral_code'])
                 ->first();
 
-            if (is_null($referralUser)) {
-                return redirect(RouteServiceProvider::HOME);
+            if ($referralUser) {
+                $referralUser->load('website');
+
+                $sameIp =
+                    ($referralUser->website?->initial_ip === $ip) ||
+                    ($referralUser->website?->last_ip === $ip);
+
+                if (! $sameIp) {
+                    $referralUser->referrals()->updateOrCreate(
+                        ['user_id' => $referralUser->id],
+                        [
+                            'referrals_total' => ($referralUser->referrals?->referrals_total ?? 0) + 1,
+                        ],
+                    );
+
+                    $referralUser->userReferrals()->create([
+                        'referred_user_id' => $user->id,
+                        'referred_user_ip' => $ip,
+                    ]);
+                }
             }
-
-            $referralUser->load('website');
-
-            $sameIp =
-                ($referralUser->website?->initial_ip === $ip) ||
-                ($referralUser->website?->last_ip === $ip);
-
-            if ($sameIp) {
-                return redirect(RouteServiceProvider::HOME);
-            }
-
-            $referralUser->referrals()->updateOrCreate(
-                ['user_id' => $referralUser->id],
-                [
-                    'referrals_total' => $referralUser->referrals != null
-                        ? $referralUser->referrals->referrals_total + 1
-                        : 1,
-                ],
-            );
-
-            $referralUser->userReferrals()->create([
-                'referred_user_id' => $user->id,
-                'referred_user_ip' => $ip,
-            ]);
         }
 
         if (setting('enable_discord_webhook') === '1') {
