@@ -20,10 +20,9 @@ class AccountSettingsFormRequest extends FormRequest
         $userId = $this->user()?->id;
 
         $rules = [
-            'username' => ['sometimes', 'string', sprintf('regex:%s', setting('username_regex')), 'min:3', 'max:25', Rule::unique('players', 'username')->ignore($userId), new WebsiteWordfilterRule ],
-            'mail' => ['required', 'email', Rule::unique('players', 'email')->ignore($userId),new WebsiteWordfilterRule ],
-            'motto' => ['nullable', 'string', 'max:127', new WebsiteWordfilterRule] ];
-
+            'username' => ['sometimes', 'string', sprintf('regex:%s', setting('username_regex')), 'min:3', 'max:25', Rule::unique('players', 'username')->ignore($userId), new WebsiteWordfilterRule],
+            'mail' => ['required', 'email', Rule::unique('players', 'email')->ignore($userId), new WebsiteWordfilterRule],
+            'motto' => ['nullable', 'string', 'max:127', new WebsiteWordfilterRule]];
 
         if (setting('google_recaptcha_enabled')) {
             $rules['g-recaptcha-response'] = ['required', 'string', new GoogleRecaptchaRule];
@@ -45,7 +44,7 @@ class AccountSettingsFormRequest extends FormRequest
         return [
             'g-recaptcha-response.required' => __('The Google recaptcha must be completed'),
             'g-recaptcha-response.string' => __('The google recaptcha was submitted with an invalid type'),
-			'cf-turnstile-response.required' => __('Please complete the captcha.'),
+            'cf-turnstile-response.required' => __('Please complete the captcha.'),
         ];
     }
 }

@@ -37,7 +37,7 @@ class StaffApplicationFormRequest extends FormRequest
         return [
             'g-recaptcha-response.required' => __('The Google recaptcha must be completed'),
             'g-recaptcha-response.string' => __('The google recaptcha was submitted with an invalid type'),
-			'cf-turnstile-response.required' => __('Please complete the captcha.'),
+            'cf-turnstile-response.required' => __('Please complete the captcha.'),
         ];
     }
 }
