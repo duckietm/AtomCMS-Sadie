@@ -59,7 +59,6 @@ Experience Atom CMS with our official themes:
 | MariaDB | 10.x or higher |
 | Composer | v2 |
 | Node.js | LTS |
-| Database | [Arcturus Morningstar](https://github.com/ObjectRetros/retro-hotel-files/blob/main/arcturus-3-5-3-database.sql) |
 
 ### Required PHP Extensions
 
