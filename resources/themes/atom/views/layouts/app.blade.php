@@ -19,7 +19,7 @@
     <script src="{{ asset('assets/js/tippy-bundle.umd.min.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('assets/css/scale.min.css') }}"/>
 
-    @vite(['resources/themes/' .  setting('theme') . '/css/app.scss', 'resources/themes/' .  setting('theme') . '/js/app.js'], 'build')
+    @vite(['resources/themes/' . setting('theme', 'atom') . '/css/app.scss', 'resources/themes/' . setting('theme', 'atom') . '/js/app.js'], 'build')
     @stack('scripts')
     @if (setting('cloudflare_turnstile_enabled'))
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
