@@ -67,7 +67,6 @@ class ShopController extends Controller
             // If RCON is available, use it
             if ($this->rconService->isConnected) {
                 $this->rconService->giveBadge($user, $code);
-
                 continue;
             }
 
@@ -75,11 +74,11 @@ class ShopController extends Controller
             $user->badges()->updateOrCreate(
                 [
                     'player_id' => $user->id,
-                    'badge_id' => $badgeId,
+                    'badge_id'  => $badgeId,
                 ],
                 [
                     'slot' => 0, // keep 0 = in inventory, >0 = equipped
-                ],
+                ]
             );
         }
     }
@@ -141,7 +140,7 @@ class ShopController extends Controller
             } else {
                 PlayerRole::query()->updateOrCreate(
                     ['player_id' => $receiver->id],
-                    ['role_id' => $newRank],
+                    ['role_id' => $newRank]
                 );
             }
         }

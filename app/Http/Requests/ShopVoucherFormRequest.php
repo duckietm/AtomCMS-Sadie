@@ -24,7 +24,7 @@ class ShopVoucherFormRequest extends FormRequest
             $rules['g-recaptcha-response'] = ['sometimes', 'nullable'];
         }
 
-        if (setting('cloudflare_turnstile_enabled')) {
+         if (setting('cloudflare_turnstile_enabled')) {
             $rules['cf-turnstile-response'] = ['required', 'string', app(Turnstile::class)];
         } else {
             $rules['cf-turnstile-response'] = ['sometimes', 'nullable'];
