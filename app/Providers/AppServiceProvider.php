@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Miscellaneous\WebsiteSetting;
 use App\Models\WebsiteDrawBadge;
 use App\Observers\WebsiteDrawBadgeObserver;
+use App\Observers\WebsiteSettingObserver;
 use App\Services\PermissionsService;
 use App\Services\RconService;
 use App\Services\SettingsService;
@@ -61,7 +63,8 @@ class AppServiceProvider extends ServiceProvider
 
         $adsPath = $settingsService->getOrDefault('ads_path_filesystem', '/var/www/gamedata/custom');
         Config::set('filesystems.disks.ads.root', $adsPath);
-
+		
+		WebsiteSetting::observe(WebsiteSettingObserver::class);
         WebsiteDrawBadge::observe(WebsiteDrawBadgeObserver::class);
     }
 }

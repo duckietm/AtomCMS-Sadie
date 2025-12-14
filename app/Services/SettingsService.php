@@ -10,27 +10,38 @@ use Throwable;
 
 class SettingsService
 {
-    public ?Collection $settings;
+    public Collection $settings;
 
     public function __construct()
     {
-        try {
-            Cache::remember('website_settings', now()->addMinutes(5), function () {
-                return Schema::hasTable('website_settings') ? WebsiteSetting::all()->pluck('value', 'key') : collect();
-            });
-
-            $this->settings = Cache::get('website_settings');
-        } catch (Throwable $e) {
-            $this->settings = collect();
-        }
+        $this->settings = $this->loadSettings();
     }
 
-    public function getOrDefault(string $settingName, ?string $default = null): string
+    private function loadSettings(): Collection
     {
-        if (! $this->settings) {
-            return (string) $default;
+        if (! Schema::hasTable('website_settings')) {
+            return collect();
         }
 
-        return (string) $this->settings->get($settingName, $default);
+        return Cache::rememberForever('website_settings', function () {
+			return WebsiteSetting::query()->pluck('value', 'key');
+		});
     }
+
+    public function getOrDefault(string $settingName, mixed $default = null): mixed
+    {
+        $value = $this->settings->get($settingName);
+
+        if ($value === null || $value === '') {
+            return $default;
+        }
+
+        return $value;
+    }
+	
+	public function refresh(): void
+	{
+		Cache::forget('website_settings');
+		$this->settings = $this->loadSettings();
+	}
 }

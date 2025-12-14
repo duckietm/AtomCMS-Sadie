@@ -26,13 +26,36 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer, pint
 
-      - name: Install composer dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress
+      - name: Install composer dependencies (no scripts)
+        run: composer install --prefer-dist --no-interaction --no-progress --no-scripts
+
+      - name: Prepare Laravel environment for Pint
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+        run: |
+          # Create a minimal .env if none exists (Laravel needs one to boot)
+          touch .env
+
+          # Explicitly set DB to in-memory SQLite via environment variables
+          # These override anything in .env file or config
+          echo "DB_CONNECTION=$DB_CONNECTION" >> .env
+          echo "DB_DATABASE=$DB_DATABASE" >> .env
+
+          # Generate key
+          php artisan key:generate --no-interaction
+
+          # Discover packages (now safe - uses in-memory SQLite)
+          php artisan package:discover --ansi
+
+          # Run migrations in memory so tables exist
+          php artisan migrate --force
 
       - name: Run Pint
-        run: pint
+        run: ./vendor/bin/pint
 
       - name: Commit linted files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'style: fix code style with Laravel Pint'
+          file_pattern: '*.php'
