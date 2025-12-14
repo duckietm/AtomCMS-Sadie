@@ -26,34 +26,29 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer, pint
 
-      # IMPORTANT: Install without running scripts (prevents package:discover and app boot)
       - name: Install composer dependencies (no scripts)
         run: composer install --prefer-dist --no-interaction --no-progress --no-scripts
 
       - name: Prepare Laravel environment for Pint
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
         run: |
-          # Copy env file
-          if [ -f .env.example ]; then
-            cp .env.example .env
-          elif [ -f .env.testing.example ]; then
-            cp .env.testing.example .env
-          else
-            echo "No env file found!"
-            exit 1
-          fi
+          # Create a minimal .env if none exists (Laravel needs one to boot)
+          touch .env
 
+          # Explicitly set DB to in-memory SQLite via environment variables
+          # These override anything in .env file or config
+          echo "DB_CONNECTION=$DB_CONNECTION" >> .env
+          echo "DB_DATABASE=$DB_DATABASE" >> .env
+
+          # Generate key
           php artisan key:generate --no-interaction
 
-          # Force in-memory SQLite safely
-          sed -i '/DB_CONNECTION=/d' .env
-          sed -i '/DB_DATABASE=/d' .env
-          echo "DB_CONNECTION=sqlite" >> .env
-          echo "DB_DATABASE=:memory:" >> .env
-
-          # Now run package:discover manually (app will boot safely with in-memory DB)
+          # Discover packages (now safe - uses in-memory SQLite)
           php artisan package:discover --ansi
 
-          # Run migrations so Schema::hasTable() works
+          # Run migrations in memory so tables exist
           php artisan migrate --force
 
       - name: Run Pint
