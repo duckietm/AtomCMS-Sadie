@@ -23,13 +23,9 @@ class SettingsService
             return collect();
         }
 
-        try {
-            return Cache::rememberForever('website_settings', function () {
-                return WebsiteSetting::query()->pluck('value', 'key');
-            });
-        } catch (Throwable $e) {
-            return Cache::get('website_settings', collect());
-        }
+        return Cache::rememberForever('website_settings', function () {
+			return WebsiteSetting::query()->pluck('value', 'key');
+		});
     }
 
     public function getOrDefault(string $settingName, mixed $default = null): mixed
@@ -42,4 +38,10 @@ class SettingsService
 
         return $value;
     }
+	
+	public function refresh(): void
+	{
+		Cache::forget('website_settings');
+		$this->settings = $this->loadSettings();
+	}
 }
