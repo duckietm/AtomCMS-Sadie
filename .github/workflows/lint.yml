@@ -1,4 +1,5 @@
 name: Fix Code Style
+
 on: [push]
 
 permissions:
@@ -28,21 +29,30 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
-      # NEW: Prepare a minimal Laravel environment so Schema::hasTable() doesn't crash
-      - name: Prepare Laravel for Pint
+      - name: Prepare Laravel environment for Pint
         run: |
-          cp .env.example .env || cp .env.testing.example .env  # fallback if no .env.example
+          # Copy an env file (prefer .env.example, fallback to .env.testing.example)
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          elif [ -f .env.testing.example ]; then
+            cp .env.testing.example .env
+          else
+            echo "No .env.example or .env.testing.example found"
+            exit 1
+          fi
+
+          # Generate application key (non-interactive)
           php artisan key:generate --no-interaction
 
-          # Use in-memory SQLite to avoid file issues
+          # Force in-memory SQLite for CI (fast, no file needed)
           echo "DB_CONNECTION=sqlite" >> .env
           echo "DB_DATABASE=:memory:" >> .env
 
-          # Run migrations in memory so tables exist during boot
+          # Run migrations in memory so tables exist during app boot
           php artisan migrate --force
 
       - name: Run Pint
-        run: ./vendor/bin/pint  # or just pint if globally available
+        run: ./vendor/bin/pint
 
       - name: Commit linted files
         uses: stefanzweifel/git-auto-commit-action@v5
