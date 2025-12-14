@@ -1,5 +1,4 @@
 name: Fix Code Style
-
 on: [push]
 
 permissions:
@@ -29,10 +28,24 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      # NEW: Prepare a minimal Laravel environment so Schema::hasTable() doesn't crash
+      - name: Prepare Laravel for Pint
+        run: |
+          cp .env.example .env || cp .env.testing.example .env  # fallback if no .env.example
+          php artisan key:generate --no-interaction
+
+          # Use in-memory SQLite to avoid file issues
+          echo "DB_CONNECTION=sqlite" >> .env
+          echo "DB_DATABASE=:memory:" >> .env
+
+          # Run migrations in memory so tables exist during boot
+          php artisan migrate --force
+
       - name: Run Pint
-        run: pint
+        run: ./vendor/bin/pint  # or just pint if globally available
 
       - name: Commit linted files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'style: fix code style with Laravel Pint'
+          file_pattern: '*.php'
