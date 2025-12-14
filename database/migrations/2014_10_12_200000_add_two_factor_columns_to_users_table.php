@@ -7,18 +7,24 @@ use Laravel\Fortify\Fortify;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('players', function (Blueprint $table) {
-            if (columnExists('players', 'two_factor_secret')) {
-                Schema::dropColumns('players', 'two_factor_secret');
-            }
+        if (!Schema::hasTable('players')) {
+            Schema::create('players', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('username', 50);
+                $table->string('email', 50);
+                $table->string('password', 60);
+                $table->dateTime('created_at', 6);
+            });
+        }
 
-            if (columnExists('players', 'two_factor_recovery_codes')) {
-                Schema::dropColumns('players', 'two_factor_recovery_codes');
+        Schema::table('players', function (Blueprint $table) {
+            if (Schema::hasColumn('players', 'two_factor_secret')) {
+                $table->dropColumn('two_factor_secret');
+            }
+            if (Schema::hasColumn('players', 'two_factor_recovery_codes')) {
+                $table->dropColumn('two_factor_recovery_codes');
             }
 
             $table->text('two_factor_secret')
@@ -30,8 +36,8 @@ return new class extends Migration
                 ->nullable();
 
             if (Fortify::confirmsTwoFactorAuthentication()) {
-                if (columnExists('players', 'two_factor_confirmed_at')) {
-                    Schema::dropColumns('players', 'two_factor_confirmed_at');
+                if (Schema::hasColumn('players', 'two_factor_confirmed_at')) {
+                    $table->dropColumn('two_factor_confirmed_at');
                 }
 
                 $table->timestamp('two_factor_confirmed_at')
@@ -41,18 +47,8 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('players', function (Blueprint $table) {
-            $table->dropColumn(array_merge([
-                'two_factor_secret',
-                'two_factor_recovery_codes',
-            ], Fortify::confirmsTwoFactorAuthentication() ? [
-                'two_factor_confirmed_at',
-            ] : []));
-        });
+        Schema::dropIfExists('players');
     }
 };
