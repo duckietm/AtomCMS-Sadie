@@ -26,29 +26,34 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer, pint
 
-      - name: Install composer dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress
+      # IMPORTANT: Install without running scripts (prevents package:discover and app boot)
+      - name: Install composer dependencies (no scripts)
+        run: composer install --prefer-dist --no-interaction --no-progress --no-scripts
 
       - name: Prepare Laravel environment for Pint
         run: |
-          # Copy an env file (prefer .env.example, fallback to .env.testing.example)
+          # Copy env file
           if [ -f .env.example ]; then
             cp .env.example .env
           elif [ -f .env.testing.example ]; then
             cp .env.testing.example .env
           else
-            echo "No .env.example or .env.testing.example found"
+            echo "No env file found!"
             exit 1
           fi
 
-          # Generate application key (non-interactive)
           php artisan key:generate --no-interaction
 
-          # Force in-memory SQLite for CI (fast, no file needed)
+          # Force in-memory SQLite safely
+          sed -i '/DB_CONNECTION=/d' .env
+          sed -i '/DB_DATABASE=/d' .env
           echo "DB_CONNECTION=sqlite" >> .env
           echo "DB_DATABASE=:memory:" >> .env
 
-          # Run migrations in memory so tables exist during app boot
+          # Now run package:discover manually (app will boot safely with in-memory DB)
+          php artisan package:discover --ansi
+
+          # Run migrations so Schema::hasTable() works
           php artisan migrate --force
 
       - name: Run Pint
