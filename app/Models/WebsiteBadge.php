@@ -9,6 +9,10 @@ class WebsiteBadge extends Model
 {
     use HasFactory;
 
+    protected $table = 'badges';
+
+    public $timestamps = false;
+
     protected $fillable = [
         'badge_key',
         'badge_name',
